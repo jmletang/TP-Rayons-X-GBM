@@ -8,4 +8,5 @@ dependencies:
   - pip:
     - matplotlib
     - xpecgen
-    - tabletext      
+    - tabletext     
+    - scikit-image

@@ -5,6 +5,7 @@ dependencies:
   - python
   - numpy
   - xraylib
+  - pip
   - pip:
     - matplotlib
     - xpecgen

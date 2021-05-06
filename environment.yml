@@ -2,12 +2,15 @@ name: example-environment
 channels:
   - conda-forge
 dependencies:
+  - notebook
   - python
   - numpy
   - xraylib
+  - ipywidgets
+  - matplotlib
+  - scikit-image
+  - bs4
   - pip
   - pip:
-    - matplotlib
     - xpecgen
     - tabletext     
-    - scikit-image

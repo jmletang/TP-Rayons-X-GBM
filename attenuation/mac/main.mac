@@ -37,7 +37,10 @@
 /gate/actor/DetectorActor/enableUncertainty false
 
 # Physics list
-/gate/physics/addPhysicsList emlivermore
+/gate/physics/addPhysicsList emstandard_opt4
+/gate/physics/Gamma/SetCutInRegion      world 1 keV
+/gate/physics/Electron/SetCutInRegion   world 250 eV
+/gate/physics/Positron/SetCutInRegion   world 250 eV
 
 # Save particles stats
 /gate/actor/addActor  SimulationStatisticActor stat

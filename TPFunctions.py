@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 import xraylib as xrl
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from xpecgen import xpecgen as xg
+from tabletext import to_text
 
 def DisplayGate(material1,material2):
     pxheight=800
@@ -22,6 +24,8 @@ def DisplayGate(material1,material2):
     r = requests.post(url=API_ENDPOINT, data=data)
     soup = BeautifulSoup(r.text, features='html.parser')
     soup = BeautifulSoup(soup.find('div', {'class': 'source'}).text, features='html.parser')
+    soup.link["href"]="https://www.x3dom.org/x3dom/release/x3dom.css"
+    soup.script["src"]="https://www.x3dom.org/x3dom/release/x3dom.js"
     soup.x3d["width"]="100%"
     soup.x3d["height"]=f"{pxheight}px"
     soup.style="float:left;"
@@ -141,5 +145,54 @@ def mu(material='H2C'):
         tx = 'Le coefficient datténuation linéique à %d keV est %.4f cm$^{-1}$\n(Rayleigh %.4f cm$^{-1}$, Photoelectric %.4f cm$^{-1}$, Compton %.4f cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Rayl[energyidx],mu_rho_Photo[energyidx],mu_rho_Compt[energyidx])
         text.set_text(tx)
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
+    plt.show()
+
+def spectrum(E0,Mat_Z,Mat_X):
+    xrs=xg.calculate_spectrum(E0,12,3,100,epsrel=0.5,monitor=None,z=74)
+    #Inherent filtration: 1.2mm Al + 100cm Air
+    mu_Al=xg.get_mu(13)
+    xrs.attenuate(0.12,mu_Al)
+    xrs.attenuate(100,xg.get_mu("air"))
+    fluence_to_dose=xg.get_fluence_to_dose()
+    xrs.set_norm(value=0.146,weight=fluence_to_dose)
+    #Attenuation
+    if Mat_Z>0: #Atomic number
+        dMat = xrl.ElementDensity(Mat_Z)
+        fMat = xrl.AtomicNumberToSymbol(Mat_Z)
+        xrs.attenuate(0.1*Mat_X,xg.get_mu(Mat_Z))
+    else: #-1 == 'Water'
+        mH2O = 2. * xrl.AtomicWeight(1) + xrl.AtomicWeight(8)
+        wH = 0.1 * Mat_X * 2. * xrl.AtomicWeight(1) / (xrl.ElementDensity(1) * mH2O)
+        wO = 0.1 * Mat_X * xrl.AtomicWeight(8) / (xrl.ElementDensity(8) * mH2O)
+        xrs.attenuate(wH,xg.get_mu(1))
+        xrs.attenuate(wO,xg.get_mu(8))
+    #Get the figures
+    Nr_Photons = "%.4g" % (xrs.get_norm())
+    Average_Energy = "%.2f keV" % (xrs.get_norm(lambda x:x)/xrs.get_norm())
+    Dose = "%.3g mGy" % (xrs.get_norm(fluence_to_dose))    
+    HVL_Al=xrs.hvl(0.5,fluence_to_dose,mu_Al)
+    HVL_Al_text = "%.2f mm (Al)" % (10*HVL_Al)
+    a = [["Dose à 1m", Dose],["Nombre total de photons", Nr_Photons],
+         ["Énergie moyenne des photons",Average_Energy],["Couche de Demi-Atténuation", HVL_Al_text]]
+    print(to_text(a))
+    (x2,y2) = xrs.get_points()
+    plt.close(2)
+    plt.figure(num=2,dpi=150,clear=True)
+    mpl.rcParams.update({'font.size': 6})
+    axMW = plt.subplot(111)
+    axMW.plot(x2,y2)
+    axMW.set_xlim(3,E0)
+    axMW.set_ylim(0,)
+    plt.xlabel("Énergie [keV]")
+    plt.ylabel("Nombre de photons par [keV·cm²·mGy] @ 1m")
+    axMW.grid(which='major', axis='x', linewidth=0.5, linestyle='-', color='0.75')
+    axMW.grid(which='minor', axis='x', linewidth=0.2, linestyle='-', color='0.85')
+    axMW.grid(which='major', axis='y', linewidth=0.5, linestyle='-', color='0.75')
+    axMW.grid(which='minor', axis='y', linewidth=0.2, linestyle='-', color='0.85')
+    axMW.xaxis.set_major_formatter(tic.FormatStrFormatter("%d"))
+    axMW.yaxis.set_major_formatter(tic.FormatStrFormatter("%.2g"))
+    axMW.xaxis.set_minor_locator(AutoMinorLocator())
+    axMW.yaxis.set_minor_locator(AutoMinorLocator())
+    axMW.grid(True)
     plt.show()
 

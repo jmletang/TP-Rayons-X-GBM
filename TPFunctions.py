@@ -108,7 +108,7 @@ def mu(material='H2C'):
     mu_rho = [xrl.CS_Total_CP(material, E) * density for E in energy_range]
     mu_rho_Photo = [xrl.CS_Photo_CP(material, E) * density for E in energy_range]
     mu_rho_Compt = [xrl.CS_Compt_CP(material, E) * density for E in energy_range]
-    plt.figure(dpi=150)
+    fig = plt.figure(num=1,dpi=150,clear=True)
     mpl.rcParams.update({'font.size': 6})
     axMW = plt.subplot(111)
     axMW.plot(energy_range, mu_rho,color="black",linewidth=2.,linestyle="-",label='Total')
@@ -131,6 +131,12 @@ def mu(material='H2C'):
     #symbol=xrl.AtomicNumberToSymbol(material)
     axMW.set_title("%s" % material, va='bottom')
     #plt.savefig('mu_over_rho_W.pdf', format='PDF')
-    
+    text=axMW.text(np.min(energy_range),1e-2, "", va="bottom", ha="left")
+    def onclick(event):
+        energy = np.round(event.xdata)
+        energyidx = int(np.where(np.min(np.abs(energy_range-energy))==np.abs(energy_range-energy))[0])
+        tx = 'Le coefficient datténuation linéique à %d keV est %.4f cm$^{-1}$ (Photoelectric %.4f cm$^{-1}$, Compton %.4f cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Compt[energyidx],mu_rho_Photo[energyidx])
+        text.set_text(tx)
+    cid = fig.canvas.mpl_connect('button_press_event', onclick)
     plt.show()
 

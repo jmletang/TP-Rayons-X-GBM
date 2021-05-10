@@ -135,7 +135,7 @@ def mu(material='H2C'):
     def onclick(event):
         energy = np.round(event.xdata)
         energyidx = int(np.where(np.min(np.abs(energy_range-energy))==np.abs(energy_range-energy))[0])
-        tx = 'Le coefficient datténuation linéique à %d keV est %.4f cm$^{-1}$ (Photoelectric %.4f cm$^{-1}$, Compton %.4f cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Compt[energyidx],mu_rho_Photo[energyidx])
+        tx = 'Le coefficient datténuation linéique à %d keV est %.4f cm$^{-1}$ (Photoelectric %.4f cm$^{-1}$, Compton %.4f cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Photo[energyidx],mu_rho_Compt[energyidx])
         text.set_text(tx)
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
     plt.show()

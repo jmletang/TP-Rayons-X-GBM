@@ -109,6 +109,7 @@ def mu(material='H2C'):
     mu_rho_Photo = [xrl.CS_Photo_CP(material, E) * density for E in energy_range]
     mu_rho_Compt = [xrl.CS_Compt_CP(material, E) * density for E in energy_range]
     mu_rho_Rayl = [xrl.CS_Rayl_CP(material, E) * density for E in energy_range]
+    plt.close(1)
     fig = plt.figure(num=1,dpi=150,clear=True)
     mpl.rcParams.update({'font.size': 6})
     axMW = plt.subplot(111)

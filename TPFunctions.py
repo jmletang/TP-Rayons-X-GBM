@@ -108,12 +108,14 @@ def mu(material='H2C'):
     mu_rho = [xrl.CS_Total_CP(material, E) * density for E in energy_range]
     mu_rho_Photo = [xrl.CS_Photo_CP(material, E) * density for E in energy_range]
     mu_rho_Compt = [xrl.CS_Compt_CP(material, E) * density for E in energy_range]
+    mu_rho_Rayl = [xrl.CS_Rayl_CP(material, E) * density for E in energy_range]
     fig = plt.figure(num=1,dpi=150,clear=True)
     mpl.rcParams.update({'font.size': 6})
     axMW = plt.subplot(111)
     axMW.plot(energy_range, mu_rho,color="black",linewidth=2.,linestyle="-",label='Total')
     axMW.plot(energy_range, mu_rho_Photo,color="red",linewidth=2.,linestyle="-",label='Photoelectric')
     axMW.plot(energy_range, mu_rho_Compt,color="blue",linewidth=2.,linestyle="-",label='Compton')
+    axMW.plot(energy_range, mu_rho_Rayl,color="green",linewidth=2.,linestyle="-",label='Rayleigh')
     axMW.set_xscale('log')
     axMW.set_yscale('log')
     axMW.set_xlim(np.min(energy_range),np.max(energy_range))
@@ -135,7 +137,7 @@ def mu(material='H2C'):
     def onclick(event):
         energy = np.round(event.xdata)
         energyidx = int(np.where(np.min(np.abs(energy_range-energy))==np.abs(energy_range-energy))[0])
-        tx = 'Le coefficient datténuation linéique à %d keV est %.4f cm$^{-1}$ (Photoelectric %.4f cm$^{-1}$, Compton %.4f cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Photo[energyidx],mu_rho_Compt[energyidx])
+        tx = 'Le coefficient datténuation linéique à %d keV est %.4f cm$^{-1}$\n(Rayleigh %.4f cm$^{-1}$, Photoelectric %.4f cm$^{-1}$, Compton %.4f cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Rayl[energyidx],mu_rho_Photo[energyidx],mu_rho_Compt[energyidx])
         text.set_text(tx)
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
     plt.show()

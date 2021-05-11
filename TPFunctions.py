@@ -109,6 +109,7 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
 def mu(material='H2C'):
     energy_range = np.arange(5.,800., 0.1, dtype=np.double)
     density = GetDensity(material)
+    #print(f'density {material} = {density}')
     mu_rho = [xrl.CS_Total_CP(material, E) * density for E in energy_range]
     mu_rho_Photo = [xrl.CS_Photo_CP(material, E) * density for E in energy_range]
     mu_rho_Compt = [xrl.CS_Compt_CP(material, E) * density for E in energy_range]

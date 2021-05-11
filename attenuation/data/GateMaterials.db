@@ -11,11 +11,9 @@ Vacuum: d=0.000001 mg/cm3 ; n=1
 Pb: d=11.35 g/cm3 ; n=1 ; state=solid
 	+el: name=auto ; n=1
 
-H2C: d=0.93 g/cm3; n=2;  state=solid
+H2C: d=0.94 g/cm3; n=2;  state=solid
 	+el: name=Hydrogen ; n=2
-  	+el: name=Carbon ; n=1
+	+el: name=Carbon ; n=1
 
-I: d=11.35 g/cm3 ; n=1 ; state=solid
+I: d=4.93 g/cm3 ; n=1 ; state=solid
 	+el: name=auto ; n=1
-
-

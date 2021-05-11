@@ -45,7 +45,7 @@ def DisplayGate(material1,material2):
     style = soup.new_tag("style")
     style.string = ".split { height: 100%; width: 50%; position: fixed; top: 0; } .left { left: 0; } .right { right: 0; border-left: 3px solid black; }"
     soup.head.append(style)
-   
+
     left = soup.new_tag("div")
     left["class"] = "split left"
     left.append(material1)
@@ -57,12 +57,12 @@ def DisplayGate(material1,material2):
     soup.body.clear()
     soup.body.append(left)
     soup.body.append(right)
-    
+
     html_file.write(soup.prettify())
     html_file.close()
     display(HTML("<style>.container { width:100% !important; }</style>"))
     display(IFrame(src='./simulation.html', width="100%", align="left", height=pxheight))
-    
+
 def formula(compound):
     elt_CP = [xrl.AtomicNumberToSymbol(compound['Elements'][i]) for i in range(compound['nElements'])]
     atf_CP = [compound['massFractions'][i]/xrl.AtomicWeight(compound['Elements'][i])
@@ -72,39 +72,39 @@ def formula(compound):
 
 def GetDensity(material):
     if material=='H2C':
-        cpH2C = xrl.GetCompoundDataNISTByName('Polyethylene') 
+        cpH2C = xrl.GetCompoundDataNISTByName('Polyethylene')
         density = cpH2C['density']
     else:
         Z=xrl.SymbolToAtomicNumber(material)
         density = xrl.ElementDensity(Z)
     return density
 
-def simulator(N0=100, energy=100, material1="H2C", thickness1=39, material2="Pb", thickness2=0.1):
+def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, material2="Pb", thickness2=0.1):
     nmat=2
     for i in range(2*nmat):
         if os.path.exists(f"attenuation/g4_0{i}.wrl"):
             os.remove(f"attenuation/g4_0{i}.wrl")
     Ndt=np.zeros((nmat))
-    for i,material,thickness in zip(range(nmat),[material1,material2],[thickness1,thickness2]):
+    for i,energy,material,thickness in zip(range(nmat),[energy1,energy2],[material1,material2],[thickness1,thickness2]):
         if N0<=100:
             # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
-            p = subprocess.run(f'source ~/.profile && Gate -a [THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
-                       shell=True, executable='/bin/bash', 
-                       cwd='attenuation',
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE,
-                       universal_newlines=True,
-                       bufsize=0)
+            with open("Gate.log", "w") as f:
+              subprocess.run(f'source ~/.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
+                             shell=True, executable='/bin/bash',
+                             cwd='attenuation',
+                             stdout=f,
+                             stderr=f,
+                             universal_newlines=True,
+                             bufsize=0)
             Ndt[i]=np.loadtxt('attenuation/output/fluence.txt')
-            #print(p.stdout)
         else:
             density = GetDensity(material)
-            Ndt[i] = np.random.poisson(N0*np.exp(-thickness*0.1*density*xrl.CS_Total_CP(material, 100)))
+            Ndt[i] = np.random.poisson(N0*np.exp(-thickness*0.1*density*xrl.CS_Total_CP(material, energy)))
         print(f'{int(Ndt[i])} photons ont traversé la plaque de {thickness} cm de {material} sur {N0} envoyés')
     if N0<=100:
         DisplayGate(material1,material2)
     else:
-        print('La visualisation est désactivée au delà de 100 photon émis.')
+        print('La visualisation est désactivée au delà de 100 photons émis.')
 
 def mu(material='H2C'):
     energy_range = np.arange(5.,800., 0.1, dtype=np.double)
@@ -138,12 +138,14 @@ def mu(material='H2C'):
     #symbol=xrl.AtomicNumberToSymbol(material)
     axMW.set_title("%s" % material, va='bottom')
     #plt.savefig('mu_over_rho_W.pdf', format='PDF')
-    text=axMW.text(np.min(energy_range),1e-2, "", va="bottom", ha="left")
+    text=axMW.text(np.min(energy_range),1e4, "", va="top", ha="left")
     def onclick(event):
-        energy = np.round(event.xdata)
+        energy = np.round(event.xdata*10)*0.1
         energyidx = int(np.where(np.min(np.abs(energy_range-energy))==np.abs(energy_range-energy))[0])
-        tx = 'Le coefficient datténuation linéique à %d keV est %.4f cm$^{-1}$\n(Rayleigh %.4f cm$^{-1}$, Photoelectric %.4f cm$^{-1}$, Compton %.4f cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Rayl[energyidx],mu_rho_Photo[energyidx],mu_rho_Compt[energyidx])
+        tx = 'Le coefficient d\'atténuation linéique de ' + material + ' à %.1f keV est %1.4e cm$^{-1}$\n(Rayleigh %1.4e cm$^{-1}$, Photoelectric %1.4e cm$^{-1}$, Compton %1.4e cm$^{-1}$)'%(energy,mu_rho[energyidx],mu_rho_Rayl[energyidx],mu_rho_Photo[energyidx],mu_rho_Compt[energyidx])
         text.set_text(tx)
+        text.set_x(axMW.get_xlim()[0])
+        text.set_y(axMW.get_ylim()[1])
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
     plt.show()
 
@@ -169,7 +171,7 @@ def spectrum(E0,Mat_Z,Mat_X):
     #Get the figures
     Nr_Photons = "%.4g" % (xrs.get_norm())
     Average_Energy = "%.2f keV" % (xrs.get_norm(lambda x:x)/xrs.get_norm())
-    Dose = "%.3g mGy" % (xrs.get_norm(fluence_to_dose))    
+    Dose = "%.3g mGy" % (xrs.get_norm(fluence_to_dose))
     HVL_Al=xrs.hvl(0.5,fluence_to_dose,mu_Al)
     HVL_Al_text = "%.2f mm (Al)" % (10*HVL_Al)
     a = [["Dose à 1m", Dose],["Nombre total de photons", Nr_Photons],

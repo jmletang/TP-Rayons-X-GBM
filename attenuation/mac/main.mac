@@ -11,11 +11,11 @@
 # Slabs
 /gate/world/daughters/name   Slab
 /gate/world/daughters/insert box
-/gate/Slab/geometry/setXLength       4 cm 
-/gate/Slab/geometry/setYLength       4 cm 
-/gate/Slab/geometry/setZLength       {THICKNESS} mm 
-/gate/Slab/placement/setTranslation  0 0 0 cm 
-/gate/Slab/setMaterial {MATERIAL} 
+/gate/Slab/geometry/setXLength       4 cm
+/gate/Slab/geometry/setYLength       4 cm
+/gate/Slab/geometry/setZLength       {THICKNESS} cm
+/gate/Slab/placement/setTranslation  0 0 0 cm
+/gate/Slab/setMaterial {MATERIAL}
 
 # Detection plane
 /gate/world/daughters/name                   DetectorPlane
@@ -52,7 +52,7 @@
 /gate/source/addSource mybeam gps
 /gate/source/mybeam/gps/particle      gamma
 /gate/source/mybeam/gps/ene/type      Mono
-/gate/source/mybeam/gps/ene/mono      100 keV
+/gate/source/mybeam/gps/ene/mono      {ENERGY} keV
 /gate/source/mybeam/gps/pos/centre    0 0 -10 cm
 /gate/source/mybeam/gps/direction     0 0 1
 /gate/source/mybeam/gps/pos/type      Point

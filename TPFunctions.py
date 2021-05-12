@@ -194,8 +194,8 @@ def spectrum(E0,Mat_Z,Mat_X):
     axMW.grid(which='minor', axis='y', linewidth=0.2, linestyle='-', color='0.85')
     axMW.xaxis.set_major_formatter(mpl.ticker.FormatStrFormatter("%d"))
     axMW.yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter("%.2g"))
-    axMW.xaxis.set_minor_locator(AutoMinorLocator())
-    axMW.yaxis.set_minor_locator(AutoMinorLocator())
+    axMW.xaxis.set_minor_locator(mpl.ticker.AutoMinorLocator())
+    axMW.yaxis.set_minor_locator(mpl.ticker.AutoMinorLocator())
     axMW.grid(True)
     plt.show()
 

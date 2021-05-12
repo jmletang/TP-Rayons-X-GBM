@@ -99,7 +99,7 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
             Ndt[i]=np.loadtxt('attenuation/output/fluence.txt')
         else:
             density = GetDensity(material)
-            Ndt[i] = np.random.poisson(N0*np.exp(-thickness*0.1*density*xrl.CS_Total_CP(material, energy)))
+            Ndt[i] = np.random.poisson(N0*np.exp(-thickness*density*xrl.CS_Total_CP(material, energy)))
         print(f'{int(Ndt[i])} photons ont traversé la plaque de {thickness} cm de {material} sur {N0} envoyés')
     if N0<=100:
         DisplayGate(material1,material2)

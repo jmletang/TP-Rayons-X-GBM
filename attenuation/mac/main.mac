@@ -41,7 +41,7 @@
 /gate/physics/Gamma/SetCutInRegion      world 1 keV
 /gate/physics/Electron/SetCutInRegion   world 250 eV
 /gate/physics/Positron/SetCutInRegion   world 250 eV
-/gate/physics/SetMaxStepSizeInRegion    world 1 um
+/gate/physics/SetMaxStepSizeInRegion    world 10 um
 /gate/physics/ActivateStepLimiter       electron
 
 # Save particles stats

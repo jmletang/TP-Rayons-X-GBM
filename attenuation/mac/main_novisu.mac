@@ -1,0 +1,87 @@
+/vis/disable
+/gate/geometry/setMaterialDatabase data/GateMaterials.db
+
+# World
+/gate/world/setMaterial            Vacuum
+/gate/world/geometry/setXLength    30 cm
+/gate/world/geometry/setYLength    30 cm
+/gate/world/geometry/setZLength    30 cm
+/gate/world/vis/setVisible         0
+
+# Slabs
+/gate/world/daughters/name   Slab
+/gate/world/daughters/insert box
+/gate/Slab/geometry/setXLength       4 cm
+/gate/Slab/geometry/setYLength       4 cm
+/gate/Slab/geometry/setZLength       {THICKNESS} cm
+/gate/Slab/placement/setTranslation  0 0 0 cm
+/gate/Slab/setMaterial {MATERIAL}
+
+#Phase space actor
+/gate/actor/addActor PhaseSpaceActor         MyActor
+/gate/actor/MyActor/save                     phsp{MATERIAL}.root
+/gate/actor/MyActor/attachTo                 Slab
+/gate/actor/MyActor/enableEkine              true
+/gate/actor/MyActor/enableXPosition          false
+/gate/actor/MyActor/enableYPosition          false
+/gate/actor/MyActor/enableZPosition          false
+/gate/actor/MyActor/enableXDirection         false
+/gate/actor/MyActor/enableYDirection         false
+/gate/actor/MyActor/enableZDirection         false
+/gate/actor/MyActor/enableProductionVolume   false
+/gate/actor/MyActor/enableProductionProcess  false
+/gate/actor/MyActor/enableParticleName       true
+/gate/actor/MyActor/enableWeight             false
+/gate/actor/MyActor/enableTrackLength        false
+/gate/actor/MyActor/storeOutgoingParticles   true
+/gate/actor/MyActor/addFilter                       particleFilter
+/gate/actor/MyActor/particleFilter/addParticle      gamma
+
+# Detection plane
+/gate/world/daughters/name                   DetectorPlane
+/gate/world/daughters/insert                 box
+/gate/DetectorPlane/geometry/setXLength      1 mm
+/gate/DetectorPlane/geometry/setYLength      1 mm
+/gate/DetectorPlane/geometry/setZLength      1 nm
+/gate/DetectorPlane/placement/setTranslation 0 0 10 cm
+/gate/DetectorPlane/setMaterial              Vacuum
+/gate/DetectorPlane/vis/setVisible           1
+/gate/DetectorPlane/vis/setColor             yellow
+
+# Fluence of gamma
+/gate/actor/addActor FluenceActor           DetectorActor
+/gate/actor/DetectorActor/save              output/fluence.txt
+/gate/actor/DetectorActor/attachTo          DetectorPlane
+/gate/actor/DetectorActor/stepHitType       pre
+/gate/actor/DetectorActor/setResolution     1 1 1
+/gate/actor/DetectorActor/enableUncertainty false
+
+# Physics list
+/gate/physics/addPhysicsList emstandard_opt4
+/gate/physics/Gamma/SetCutInRegion      world 1 keV
+/gate/physics/Electron/SetCutInRegion   world 250 eV
+/gate/physics/Positron/SetCutInRegion   world 250 eV
+/gate/physics/SetMaxStepSizeInRegion    world 10 um
+/gate/physics/ActivateStepLimiter       electron
+
+# Save particles stats
+/gate/actor/addActor  SimulationStatisticActor stat
+/gate/actor/stat/save output/stats.txt
+
+/gate/run/initialize
+
+# Beam
+/gate/source/addSource mybeam gps
+/gate/source/mybeam/gps/particle      gamma
+/gate/source/mybeam/gps/ene/type      Mono
+/gate/source/mybeam/gps/ene/mono      {ENERGY} keV
+/gate/source/mybeam/gps/pos/centre    0 0 -10 cm
+/gate/source/mybeam/gps/direction     0 0 1
+/gate/source/mybeam/gps/pos/type      Point
+
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed auto
+
+/gate/application/setTotalNumberOfPrimaries {N0}
+/gate/application/start
+

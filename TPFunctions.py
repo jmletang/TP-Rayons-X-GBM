@@ -11,6 +11,10 @@ import matplotlib as mpl
 from xpecgen import xpecgen as xg
 from tabletext import to_text
 
+import gatetools.phsp as phsp
+import gatetools as gt
+import logging
+
 def DisplayGate(material1,material2):
     pxheight=800
     # Create html file for the simulation
@@ -63,6 +67,35 @@ def DisplayGate(material1,material2):
     display(HTML("<style>.container { width:100% !important; }</style>"))
     display(IFrame(src='./simulation.html', width="100%", align="left", height=pxheight))
 
+def DisplayPhSp(material1,material2):
+    logger = logging.getLogger(__name__)
+    phsp_filename1 = "attenuation/phsp" + material1 + ".root"
+    phsp_filename2 = "attenuation/phsp" + material2 + ".root"
+    data1, read_keys1, m1 = phsp.load(phsp_filename1, -1, False)
+    data2, read_keys2, m2 = phsp.load(phsp_filename2, -1, False)
+    plt.close(1)
+    fig = plt.figure(num=1,dpi=150,clear=True)
+    mpl.rcParams.update({'font.size': 6})
+    axs1 = plt.subplot(211)
+    axs2 = plt.subplot(212)
+    x1 = data1[:, 1]
+    x2 = data2[:, 1]
+    axs1.hist(x1, 100,
+                histtype='stepfilled',
+                alpha=0.5)
+    axs1.set_title(material1)
+    axs1.set_xlabel('Énergie')
+    axs1.set_ylabel('Coups')
+    axs2.hist(x2, 100,
+                histtype='stepfilled',
+                alpha=0.5)
+    axs2.set_title(material2)
+    axs2.set_xlabel('Énergie')
+    axs2.set_ylabel('Coups')
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.show()
+
+    
 def formula(compound):
     elt_CP = [xrl.AtomicNumberToSymbol(compound['Elements'][i]) for i in range(compound['nElements'])]
     atf_CP = [compound['massFractions'][i]/xrl.AtomicWeight(compound['Elements'][i])
@@ -97,12 +130,25 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
                              universal_newlines=True,
                              bufsize=0)
             Ndt[i]=np.loadtxt('attenuation/output/fluence.txt')
+        elif N0<=10000:
+            # Large simulation, we can run two Monte Carlo simulations with disabled visu with Gate to have some feedback
+            with open("Gate.log", "w") as f:
+              subprocess.run(f'source ~/.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
+                             shell=True, executable='/bin/bash',
+                             cwd='attenuation',
+                             stdout=f,
+                             stderr=f,
+                             universal_newlines=True,
+                             bufsize=0)
+            Ndt[i]=np.loadtxt('attenuation/output/fluence.txt')
         else:
             density = GetDensity(material)
-            Ndt[i] = np.random.poisson(N0*np.exp(-thickness*density*xrl.CS_Total_CP(material, energy)))
+            Ndt[i] = np.random.poisson(N0*np.exp(-thickness*density*xrl.CS_Total_CP(material, energy)))            
         print(f'{int(Ndt[i])} photons ont traversé la plaque de {thickness} cm de {material} sur {N0} envoyés')
     if N0<=100:
         DisplayGate(material1,material2)
+    elif N0<=10000:
+        DisplayPhSp(material1,material2)
     else:
         print('La visualisation est désactivée au delà de 100 photons émis.')
 

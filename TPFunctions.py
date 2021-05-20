@@ -78,19 +78,19 @@ def DisplayPhSp(material1,material2):
     mpl.rcParams.update({'font.size': 6})
     axs1 = plt.subplot(211)
     axs2 = plt.subplot(212)
-    x1 = data1[:, 1]
-    x2 = data2[:, 1]
+    x1 = data1[:, 1] * 1e3
+    x2 = data2[:, 1] * 1e3
     axs1.hist(x1, 100,
                 histtype='stepfilled',
                 alpha=0.5)
     axs1.set_title(material1)
-    axs1.set_xlabel('Énergie')
+    axs1.set_xlabel('Énergie (keV)')
     axs1.set_ylabel('Coups')
     axs2.hist(x2, 100,
                 histtype='stepfilled',
                 alpha=0.5)
     axs2.set_title(material2)
-    axs2.set_xlabel('Énergie')
+    axs2.set_xlabel('Énergie (keV)')
     axs2.set_ylabel('Coups')
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
@@ -114,6 +114,8 @@ def GetDensity(material):
 
 def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, material2="Pb", thickness2=0.1):
     nmat=2
+    if energy2==-1:
+        energy2 = energy1
     for i in range(2*nmat):
         if os.path.exists(f"attenuation/g4_0{i}.wrl"):
             os.remove(f"attenuation/g4_0{i}.wrl")

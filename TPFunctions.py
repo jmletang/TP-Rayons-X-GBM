@@ -80,17 +80,19 @@ def DisplayPhSp(material1,material2):
     axs2 = plt.subplot(212)
     x1 = data1[:, 1] * 1e3
     x2 = data2[:, 1] * 1e3
-    axs1.hist(x1, 100,
-                histtype='stepfilled',
-                alpha=0.5)
+    axs1.hist(x1, range=(0,x1.max()),bins=100,
+                  histtype='stepfilled',
+                  alpha=0.5)
     axs1.set_title(material1)
     axs1.set_xlabel('Énergie (keV)')
+    axs1.set_xlim(xmin=0)
     axs1.set_ylabel('Coups')
-    axs2.hist(x2, 100,
-                histtype='stepfilled',
-                alpha=0.5)
+    axs2.hist(x2, range=(0,x2.max()),bins=100,
+                  histtype='stepfilled',
+                  alpha=0.5)
     axs2.set_title(material2)
     axs2.set_xlabel('Énergie (keV)')
+    axs2.set_xlim(xmin=0)
     axs2.set_ylabel('Coups')
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
@@ -135,6 +137,7 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
         elif N0<=10000:
             # Large simulation, we can run two Monte Carlo simulations with disabled visu with Gate to have some feedback
             with open("Gate.log", "w") as f:
+              #rm phsp 
               subprocess.run(f'source ~/.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
                              shell=True, executable='/bin/bash',
                              cwd='attenuation',

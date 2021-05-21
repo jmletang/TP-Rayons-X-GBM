@@ -32,7 +32,7 @@
 /gate/actor/MyActor/enableProductionProcess  false
 /gate/actor/MyActor/enableParticleName       true
 /gate/actor/MyActor/enableWeight             false
-/gate/actor/MyActor/enableTrackLength        false
+#/gate/actor/MyActor/enableTrackLength        false
 /gate/actor/MyActor/storeOutgoingParticles   true
 /gate/actor/MyActor/addFilter                       particleFilter
 /gate/actor/MyActor/particleFilter/addParticle      gamma

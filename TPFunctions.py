@@ -15,11 +15,11 @@ import gatetools.phsp as phsp
 import gatetools as gt
 import logging
 
-def DisplayGate(material1,material2):
+def DisplayGate(material1,material2,cwd):
     pxheight=800
     # Create html file for the simulation
     html_file = open("simulation.html", "w")
-    with open(f'attenuation/g4_01.wrl', 'r') as file:
+    with open(f'{cwd}/g4_01.wrl', 'r') as file:
         wrl_data = file.read()
     data = {'input_encoding': 'CLASSIC',
             'output_encoding': 'HTML5',
@@ -33,8 +33,8 @@ def DisplayGate(material1,material2):
     soup.x3d["width"]="100%"
     soup.x3d["height"]=f"{pxheight}px"
     soup.style="float:left;"
-    if os.path.exists('attenuation/g4_03.wrl'):
-        with open('attenuation/g4_03.wrl', 'r') as file:
+    if os.path.exists(f'{cwd}/g4_03.wrl'):
+        with open(f'{cwd}/g4_03.wrl', 'r') as file:
             wrl_data = file.read()
         data = {'input_encoding': 'CLASSIC',
                 'output_encoding': 'HTML5',
@@ -51,17 +51,20 @@ def DisplayGate(material1,material2):
     soup.head.append(style)
 
     left = soup.new_tag("div")
-    left["class"] = "split left"
+    if os.path.exists(f'{cwd}/g4_03.wrl'):
+        left["class"] = "split left"
     left.append(material1)
     left.append(soup.x3d)
-    right = soup.new_tag("div")
-    right["class"] = "split right"
-    right.append(material2)
-    right.append(soup2.x3d)
+    if os.path.exists(f'{cwd}/g4_03.wrl'):
+        right = soup.new_tag("div")
+        right["class"] = "split right"
+        right.append(material2)
+        right.append(soup2.x3d)
     soup.body.clear()
     soup.body.append(left)
-    soup.body.append(right)
-
+    if os.path.exists(f'{cwd}/g4_03.wrl'):
+        soup.body.append(right)
+    
     html_file.write(soup.prettify())
     html_file.close()
     display(HTML("<style>.container { width:100% !important; }</style>"))
@@ -151,9 +154,9 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
             Ndt[i] = np.random.poisson(N0*np.exp(-thickness*density*xrl.CS_Total_CP(material, energy)))            
         print(f'{int(Ndt[i])} photons ont traversé la plaque de {thickness} cm de {material} sur {N0} envoyés')
     if N0<=100:
-        DisplayGate(material1,material2)
+        DisplayGate(material1,material2,'attenuation')
     elif N0<=10000:
-        DisplayPhSp(material1,material2)
+        DisplayPhSp(material1,material2,'attenuation')
     else:
         print('La visualisation est désactivée au delà de 100 photons émis.')
 
@@ -250,3 +253,46 @@ def spectrum(E0,Mat_Z,Mat_X):
     axMW.grid(True)
     plt.show()
 
+def simulator_scatter(N0=100, position=39, sdd=1000):
+    if os.path.exists(f"diffuse/g4_00.wrl"):
+        os.remove(f"diffuse/g4_00.wrl")
+    if os.path.exists(f"diffuse/g4_01.wrl"):
+        os.remove(f"diffuse/g4_01.wrl")
+    if os.path.exists(f"diffuse/output/fluence.mhd"):
+        os.remove(f"diffuse/output/fluence.mhd")
+    if os.path.exists(f"diffuse/output/fluence.raw"):
+        os.remove(f"diffuse/output/fluence.raw")
+    if N0<=100:
+        macro='mac/main_visu.mac'
+    else:
+        macro='mac/main_novisu.mac'
+    # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
+    with open("Gate.log", "w") as f:
+      subprocess.run(f'source ~/.profile && Gate -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
+                     shell=True, executable='/bin/bash',
+                     cwd='diffuse',
+                     stdout=f,
+                     stderr=f,
+                     universal_newlines=True,
+                     bufsize=0)
+    if N0<=100:
+        DisplayGate("","",cwd='diffuse')
+    else:
+        print('La visualisation 3D est désactivée au delà de 100 photons émis.')
+
+    fluence = np.fromfile('diffuse/output/fluence.raw',dtype=np.float32)
+    fluence = fluence.reshape((1536,2048))
+    binning = 16
+    shape = (1536//binning, binning, 2048//binning, binning)
+    fluence = fluence.reshape(shape).sum(-1).sum(1)
+    
+    plt.close(12)
+    plt.figure(num=12,figsize=(6,2), dpi=150)
+    plt.subplot(121)
+    plt.imshow(fluence, cmap=plt.cm.gray,extent=(0,2047,0,1535))
+    plt.title(f'À {position} cm du détecteur (binning {binning}x{binning})', fontsize=8)
+    plt.subplot(122)
+    fluence = fluence[512//binning:1024//binning,:]
+    plt.plot(np.arange(0,2048,binning),np.mean(fluence,axis=0))
+    plt.title(f'Profil horizontal moyen', fontsize=8)
+    plt.show()

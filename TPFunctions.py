@@ -284,8 +284,8 @@ def simulator_scatter(N0=100, position=39, sdd=1000):
                      bufsize=0)
     if N0<=100:
         DisplayGate("","",cwd='diffuse')
-    elif N0<=10000:
-        DisplayPhSp("","",cwd='diffuse')
+#    elif N0<=10000:
+#        DisplayPhSp("","",cwd='diffuse')
     else:
         print('La visualisation 3D est désactivée au delà de 100 photons émis.')
 

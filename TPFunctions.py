@@ -2,6 +2,13 @@ import numpy as np
 import subprocess
 import requests
 import os
+import sys
+new_path = r'/usr/local/lib'
+sys.path.append(new_path)
+new_path = r'/usr/local/lib/python3.8/site-packages'
+sys.path.append(new_path)
+new_path = r'/usr/local/progs/gate/gate-9.1-install/bin/'
+sys.path.append(new_path)
 from IPython.display import IFrame
 from IPython.core.display import display, HTML
 from bs4 import BeautifulSoup
@@ -70,10 +77,10 @@ def DisplayGate(material1,material2,cwd):
     display(HTML("<style>.container { width:100% !important; }</style>"))
     display(IFrame(src='./simulation.html', width="100%", align="left", height=pxheight))
 
-def DisplayPhSp(material1,material2):
+def DisplayPhSp(material1,material2,cwd):
     logger = logging.getLogger(__name__)
-    phsp_filename1 = "attenuation/phsp" + material1 + ".root"
-    phsp_filename2 = "attenuation/phsp" + material2 + ".root"
+    phsp_filename1 = f'{cwd}/phsp' + material1 + ".root"
+    phsp_filename2 = f'{cwd}/phsp' + material2 + ".root"
     data1, read_keys1, m1 = phsp.load(phsp_filename1, -1, False)
     data2, read_keys2, m2 = phsp.load(phsp_filename2, -1, False)
     plt.close(1)
@@ -277,6 +284,8 @@ def simulator_scatter(N0=100, position=39, sdd=1000):
                      bufsize=0)
     if N0<=100:
         DisplayGate("","",cwd='diffuse')
+    elif N0<=10000:
+        DisplayPhSp("","",cwd='diffuse')
     else:
         print('La visualisation 3D est désactivée au delà de 100 photons émis.')
 

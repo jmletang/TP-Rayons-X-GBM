@@ -136,7 +136,7 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
         if N0<=100:
             # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
             with open("Gate.log", "w") as f:
-              subprocess.run(f'source ~/.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
+              subprocess.run(f'source ../.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
                              shell=True, executable='/bin/bash',
                              cwd='attenuation',
                              stdout=f,
@@ -148,7 +148,7 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
             # Large simulation, we can run two Monte Carlo simulations with disabled visu with Gate to have some feedback
             with open("Gate.log", "w") as f:
               #rm phsp 
-              subprocess.run(f'source ~/.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
+              subprocess.run(f'source ../.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
                              shell=True, executable='/bin/bash',
                              cwd='attenuation',
                              stdout=f,
@@ -275,7 +275,7 @@ def simulator_scatter(N0=100, position=39, sdd=1000):
         macro='mac/main_novisu.mac'
     # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
     with open("Gate.log", "w") as f:
-      subprocess.run(f'source ~/.profile && Gate -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
+      subprocess.run(f'source ../.profile && Gate -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
                      shell=True, executable='/bin/bash',
                      cwd='diffuse',
                      stdout=f,

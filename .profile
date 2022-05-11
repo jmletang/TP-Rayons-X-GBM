@@ -28,19 +28,10 @@ fi
 
 
 ## DAVID
-#source /usr/local/progs/geant4/geant4.10.07.p02-install/bin/geant4.sh
+if test -e /usr/local/progs/geant4/geant4.10.07.p02-install/bin/geant4.sh
+then
+	source /usr/local/progs/geant4/geant4.10.07.p02-install/bin/geant4.sh
+fi
 export PATH="/usr/local/progs/gate/gate-9.1-install/bin:/usr/local/progs/ImageJ:$PATH"
-export LD_LIBRARY_PATH="/usr/local/progs/geant4/geant4.10.07.p02-install/lib:/usr/local/progs/gate/gate-9.1-src/libtorch/lib:/usr/local/progs/root/root_v6.24.06/lib:$LD_LIBRARY_PATH"
-
-export G4ENSDFSTATEDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4ENSDFSTATE2.3"
-export G4PIIDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4PII1.3"
-export G4INCLDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4INCL1.0"
-export G4LEDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4EMLOW7.13"
-export G4PARTICLEXSDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4PARTICLEXS3.1.1"
-export G4NEUTRONHPDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4NDL4.6"
-export G4SAIDXSDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4SAIDDATA2.0"
-export G4REALSURFACEDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/RealSurface2.2"
-export G4ABLADATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/G4ABLA3.1"
-export G4LEVELGAMMADATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/PhotonEvaporation5.7"
-export G4RADIOACTIVEDATA="/usr/local/progs/geant4/geant4.10.07.p02-install/share/Geant4-10.7.2/data/RadioactiveDecay5.6"
+export LD_LIBRARY_PATH="/usr/local/progs/gate/gate-9.1-src/libtorch/lib:/usr/local/progs/root/root_v6.24.06/lib:$LD_LIBRARY_PATH"
 

@@ -2,9 +2,9 @@
 
 # World
 /gate/world/setMaterial            Vacuum
-/gate/world/geometry/setXLength    301 cm
-/gate/world/geometry/setYLength    301 cm
-/gate/world/geometry/setZLength    301 cm
+/gate/world/geometry/setXLength    601 cm
+/gate/world/geometry/setYLength    601 cm
+/gate/world/geometry/setZLength    601 cm
 /gate/world/vis/setVisible         0
 
 # Slabs
@@ -13,8 +13,7 @@
 /gate/Slab/geometry/setXLength       10 cm
 /gate/Slab/geometry/setYLength       10 cm
 /gate/Slab/geometry/setZLength       1 cm
-/control/add PLACEMENT1 -{PLACEMENT} 149.5
-/gate/Slab/placement/setTranslation  2.5 0 {PLACEMENT1} cm
+/gate/Slab/placement/setTranslation  2.5 0 0.5 cm
 /gate/Slab/setMaterial               H2C 
 
 /gate/world/daughters/name   Slab2
@@ -22,8 +21,7 @@
 /gate/Slab2/geometry/setXLength       10 cm
 /gate/Slab2/geometry/setYLength       10 cm
 /gate/Slab2/geometry/setZLength       1 cm
-/control/add PLACEMENT2 -{PLACEMENT} 148.5
-/gate/Slab2/placement/setTranslation  -2.5 0 {PLACEMENT2} cm
+/gate/Slab2/placement/setTranslation  -2.5 0 -0.5 cm
 /gate/Slab2/setMaterial               H2C 
 
 # Detection plane
@@ -32,7 +30,8 @@
 /gate/DetectorPlane/geometry/setXLength      397.312 mm
 /gate/DetectorPlane/geometry/setYLength      297.984 mm
 /gate/DetectorPlane/geometry/setZLength      1 nm
-/gate/DetectorPlane/placement/setTranslation 0 0 150 cm
+/control/add PLACEMENT_DETECTOR {PLACEMENT} 0.501
+/gate/DetectorPlane/placement/setTranslation 0 0 {PLACEMENT_DETECTOR} cm
 /gate/DetectorPlane/setMaterial              Vacuum
 /gate/DetectorPlane/vis/setVisible           1
 /gate/DetectorPlane/vis/setColor             yellow
@@ -74,12 +73,12 @@
 /gate/source/mybeam/gps/pos/halfy      {HALFY} mm
 /gate/source/mybeam/gps/pos/rot1       1 0 0
 /gate/source/mybeam/gps/pos/rot2       0 1 0
-/control/subtract SDDOFF 150 {SDDOFF}
+/control/subtract SDDOFF {PLACEMENT} {SDDOFF}
 /gate/source/mybeam/gps/pos/centre     0 0 {SDDOFF} cm
 /gate/source/mybeam/gps/pos/type       Plane
 /gate/source/mybeam/gps/pos/shape      Rectangle
 /gate/source/mybeam/gps/ang/type       focused
-/control/subtract SDD 150 {SDD}
+/control/subtract SDD {PLACEMENT} {SDD}
 /gate/source/mybeam/gps/ang/focuspoint 0 0 {SDD} cm
 /control/execute mac/100kV.mac
 

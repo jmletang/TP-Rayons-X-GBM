@@ -165,7 +165,7 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
     elif N0<=10000:
         DisplayPhSp(material1,material2,'attenuation')
     else:
-        print('La visualisation est désactivée au delà de 100 photons émis.')
+        print('La visualisation est désactivée au delà de 10000 photons émis.')
 
 def mu(material='H2C'):
     energy_range = np.arange(5.,800., 0.1, dtype=np.double)

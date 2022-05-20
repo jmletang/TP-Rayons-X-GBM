@@ -218,7 +218,7 @@ def spectrum(E0,Mat_Z,Mat_X):
     xrs.attenuate(0.12,mu_Al)
     xrs.attenuate(100,xg.get_mu("air"))
     fluence_to_dose=xg.get_fluence_to_dose()
-    xrs.set_norm(value=0.146,weight=fluence_to_dose)
+    xrs.set_norm(value=1.0,weight=fluence_to_dose)
     #Attenuation
     if Mat_Z>0: #Atomic number
         dMat = xrl.ElementDensity(Mat_Z)

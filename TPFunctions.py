@@ -32,7 +32,7 @@ def DisplayGate(material1,material2,cwd):
             'output_encoding': 'HTML5',
             'input_code': wrl_data}
     API_ENDPOINT = "https://doc.instantreality.org/tools/x3d_encoding_converter/convert/"
-    r = requests.post(url=API_ENDPOINT, data=data)
+    r = requests.post(url=API_ENDPOINT, data=data, verify=False)
     soup = BeautifulSoup(r.text, features='html.parser')
     soup = BeautifulSoup(soup.find('div', {'class': 'source'}).text, features='html.parser')
     soup.link["href"]="https://www.x3dom.org/x3dom/release/x3dom.css"

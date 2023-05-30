@@ -9,9 +9,7 @@ new_path = r'/usr/local/lib/python3.8/site-packages'
 sys.path.append(new_path)
 new_path = r'/usr/local/progs/gate/gate-9.1-install/bin/'
 sys.path.append(new_path)
-from IPython.display import IFrame
-from IPython.core.display import display, HTML
-from bs4 import BeautifulSoup
+
 import xraylib as xrl
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -21,61 +19,21 @@ from tabletext import to_text
 import gatetools.phsp as phsp
 import gatetools as gt
 import logging
+import pyvista
 
 def DisplayGate(material1,material2,cwd):
-    pxheight=800
-    # Create html file for the simulation
-    html_file = open("simulation.html", "w")
-    with open(f'{cwd}/g4_01.wrl', 'r') as file:
-        wrl_data = file.read()
-    data = {'input_encoding': 'CLASSIC',
-            'output_encoding': 'HTML5',
-            'input_code': wrl_data}
-    API_ENDPOINT = "https://doc.instantreality.org/tools/x3d_encoding_converter/convert/"
-    r = requests.post(url=API_ENDPOINT, data=data, verify=False)
-    soup = BeautifulSoup(r.text, features='html.parser')
-    soup = BeautifulSoup(soup.find('div', {'class': 'source'}).text, features='html.parser')
-    soup.link["href"]="https://www.x3dom.org/x3dom/release/x3dom.css"
-    soup.script["src"]="https://www.x3dom.org/x3dom/release/x3dom.js"
-    soup.x3d["width"]="100%"
-    soup.x3d["height"]=f"{pxheight}px"
-    soup.style="float:left;"
-    if os.path.exists(f'{cwd}/g4_03.wrl'):
-        with open(f'{cwd}/g4_03.wrl', 'r') as file:
-            wrl_data = file.read()
-        data = {'input_encoding': 'CLASSIC',
-                'output_encoding': 'HTML5',
-                'input_code': wrl_data}
-        API_ENDPOINT = "https://doc.instantreality.org/tools/x3d_encoding_converter/convert/"
-        r = requests.post(url=API_ENDPOINT, data=data)
-        soup2 = BeautifulSoup(r.text, features='html.parser')
-        soup2 = BeautifulSoup(soup2.find('div', {'class': 'source'}).text, features='html.parser')
-        soup2.x3d["width"]="100%"
-        soup2.x3d["height"]=f"{pxheight}px"
+    pl = pyvista.Plotter()
+    pl.import_vrml(f'{cwd}/g4_01.wrl')
+    pl.add_text(material1, font_size=30)
+    pl.show()
 
-    style = soup.new_tag("style")
-    style.string = ".split { height: 100%; width: 50%; position: fixed; top: 0; } .left { left: 0; } .right { right: 0; border-left: 3px solid black; }"
-    soup.head.append(style)
+    if os.path.exists(f'{cwd}/g4_03.wrl'):
+        pl = pyvista.Plotter()
+        pl.import_vrml(f'{cwd}/g4_03.wrl')
+        pl.add_text(material2, font_size=30)
+        pl.show()
 
-    left = soup.new_tag("div")
-    if os.path.exists(f'{cwd}/g4_03.wrl'):
-        left["class"] = "split left"
-    left.append(material1)
-    left.append(soup.x3d)
-    if os.path.exists(f'{cwd}/g4_03.wrl'):
-        right = soup.new_tag("div")
-        right["class"] = "split right"
-        right.append(material2)
-        right.append(soup2.x3d)
-    soup.body.clear()
-    soup.body.append(left)
-    if os.path.exists(f'{cwd}/g4_03.wrl'):
-        soup.body.append(right)
-    
-    html_file.write(soup.prettify())
-    html_file.close()
-    display(HTML("<style>.container { width:100% !important; }</style>"))
-    display(IFrame(src='./simulation.html', width="100%", align="left", height=pxheight))
+
 
 def DisplayPhSp(material1,material2,cwd):
     logger = logging.getLogger(__name__)

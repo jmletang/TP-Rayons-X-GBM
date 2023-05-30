@@ -94,7 +94,7 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
         if N0<=100:
             # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
             with open("Gate.log", "w") as f:
-              subprocess.run(f'source ../.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
+              subprocess.run(f'source ../.profile && Gate --qt -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
                              shell=True, executable='/bin/bash',
                              cwd='attenuation',
                              stdout=f,
@@ -118,11 +118,9 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
             density = GetDensity(material)
             Ndt[i] = np.random.poisson(N0*np.exp(-thickness*density*xrl.CS_Total_CP(material, energy)))            
         print(f'{int(Ndt[i])} photons ont traversé la plaque de {thickness} cm de {material} sur {N0} envoyés')
-    if N0<=100:
-        DisplayGate(material1,material2,'attenuation')
-    elif N0<=10000:
+    if N0>100 and N0<=10000:
         DisplayPhSp(material1,material2,'attenuation')
-    else:
+    elif N0>10000:
         print('La visualisation est désactivée au delà de 10000 photons émis.')
 
 def mu(material='H2C'):

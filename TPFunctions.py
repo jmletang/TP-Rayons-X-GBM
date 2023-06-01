@@ -231,18 +231,14 @@ def simulator_scatter(N0=100, position=39, sdd=1000):
         macro='mac/main_novisu.mac'
     # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
     with open("Gate.log", "w") as f:
-      subprocess.run(f'source ../.profile && Gate -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
+      subprocess.run(f'source ../.profile && Gate {"--qt" if N0<=100 else ""} -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
                      shell=True, executable='/bin/bash',
                      cwd='diffuse',
                      stdout=f,
                      stderr=f,
                      universal_newlines=True,
                      bufsize=0)
-    if N0<=100:
-        DisplayGate("","",cwd='diffuse')
-#    elif N0<=10000:
-#        DisplayPhSp("","",cwd='diffuse')
-    else:
+    if N0>100:
         print('La visualisation 3D est désactivée au delà de 100 photons émis.')
 
     fluence = np.fromfile('diffuse/output/fluence.raw',dtype=np.float32)

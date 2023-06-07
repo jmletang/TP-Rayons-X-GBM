@@ -77,6 +77,9 @@ def GetDensity(material):
     if material=='H2C':
         cpH2C = xrl.GetCompoundDataNISTByName('Polyethylene')
         density = cpH2C['density']
+    elif material=='H2O':
+        cpH2O = xrl.GetCompoundDataNISTByName('Water, Liquid')
+        density = cpH2O['density']
     else:
         Z=xrl.SymbolToAtomicNumber(material)
         density = xrl.ElementDensity(Z)
@@ -171,6 +174,8 @@ def spectrum(E0,Mat_Z,Mat_X):
     xrs=xg.calculate_spectrum(E0,12,3,100,epsrel=0.5,monitor=None,z=74)
     #Inherent filtration: 1.2mm Al + 100cm Air
     mu_Al=xg.get_mu(13)
+    mu_Cu=xg.get_mu(29)
+    mu_Pb=xg.get_mu(82)
     xrs.attenuate(0.12,mu_Al)
     xrs.attenuate(100,xg.get_mu("air"))
     fluence_to_dose=xg.get_fluence_to_dose()
@@ -187,13 +192,16 @@ def spectrum(E0,Mat_Z,Mat_X):
         xrs.attenuate(wH,xg.get_mu(1))
         xrs.attenuate(wO,xg.get_mu(8))
     #Get the figures
-    Nr_Photons = "%.4g" % (xrs.get_norm())
-    Average_Energy = "%.2f keV" % (xrs.get_norm(lambda x:x)/xrs.get_norm())
-    Dose = "%.3g mGy" % (xrs.get_norm(fluence_to_dose))
+    Nr_Photons = "%.3g" % (xrs.get_norm())
+    Average_Energy = "%.1f keV" % (xrs.get_norm(lambda x:x)/xrs.get_norm())
+    Dose = "%.2g mGy" % (xrs.get_norm(fluence_to_dose))
     HVL_Al=xrs.hvl(0.5,fluence_to_dose,mu_Al)
-    HVL_Al_text = "%.2f mm (Al)" % (10*HVL_Al)
+    HVL_Cu=xrs.hvl(0.5,fluence_to_dose,mu_Cu)
+    HVL_Pb=xrs.hvl(0.5,fluence_to_dose,mu_Pb)
+    HVL_text = "%.3f mm (Al) ou %.3f mm (Cu) ou %.3f mm (Pb)" % (10*HVL_Al,10*HVL_Cu,10*HVL_Pb)
     a = [["Dose à 1m", Dose],["Nombre total de photons", Nr_Photons],
-         ["Énergie moyenne des photons",Average_Energy],["Couche de Demi-Atténuation", HVL_Al_text]]
+         ["Énergie moyenne des photons",Average_Energy],
+         ["Couche de Demi-Atténuation", HVL_text]]
     print(to_text(a))
     (x2,y2) = xrs.get_points()
     plt.close(2)

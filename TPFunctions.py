@@ -19,19 +19,19 @@ from tabletext import to_text
 import gatetools.phsp as phsp
 import gatetools as gt
 import logging
-import pyvista
-
-def DisplayGate(material1,material2,cwd):
-    pl = pyvista.Plotter()
-    pl.import_vrml(f'{cwd}/g4_01.wrl')
-    pl.add_text(material1, font_size=30)
-    pl.show()
-
-    if os.path.exists(f'{cwd}/g4_03.wrl'):
-        pl = pyvista.Plotter()
-        pl.import_vrml(f'{cwd}/g4_03.wrl')
-        pl.add_text(material2, font_size=30)
-        pl.show()
+#import pyvista
+#
+#def DisplayGate(material1,material2,cwd):
+#    pl = pyvista.Plotter()
+#    pl.import_vrml(f'{cwd}/g4_01.wrl')
+#    pl.add_text(material1, font_size=30)
+#    pl.show()
+#
+#    if os.path.exists(f'{cwd}/g4_03.wrl'):
+#        pl = pyvista.Plotter()
+#        pl.import_vrml(f'{cwd}/g4_03.wrl')
+#        pl.add_text(material2, font_size=30)
+#        pl.show()
 
 
 

@@ -39,8 +39,8 @@ def DisplayPhSp(material1,material2,cwd):
     logger = logging.getLogger(__name__)
     phsp_filename1 = f'{cwd}/phsp' + material1 + ".root"
     phsp_filename2 = f'{cwd}/phsp' + material2 + ".root"
-    data1, read_keys1, m1 = phsp.load(phsp_filename1, -1, False)
-    data2, read_keys2, m2 = phsp.load(phsp_filename2, -1, False)
+    data1, read_keys1, m1 = phsp.load(phsp_filename1)
+    data2, read_keys2, m2 = phsp.load(phsp_filename2)
     plt.close(1)
     fig = plt.figure(num=1,dpi=150,clear=True)
     mpl.rcParams.update({'font.size': 6})

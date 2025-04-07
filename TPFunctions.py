@@ -13,8 +13,9 @@ sys.path.append(new_path)
 import xraylib as xrl
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from xpecgen import xpecgen as xg
-from tabletext import to_text
+import spekpy as sp
+#from xpecgen import xpecgen as xg
+#from tabletext import to_text
 
 import gatetools.phsp as phsp
 import gatetools as gt
@@ -97,7 +98,8 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
         if N0<=100:
             # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
             with open("Gate.log", "w") as f:
-              subprocess.run(f'source ../.profile && Gate --qt -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
+              #subprocess.run(f'source ../.profile && Gate --qt -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
+              subprocess.run(f'Gate --qt -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main.mac',
                              shell=True, executable='/bin/bash',
                              cwd='attenuation',
                              stdout=f,
@@ -109,7 +111,8 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
             # Large simulation, we can run two Monte Carlo simulations with disabled visu with Gate to have some feedback
             with open("Gate.log", "w") as f:
               #rm phsp 
-              subprocess.run(f'source ../.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
+              #subprocess.run(f'source ../.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
+              subprocess.run(f'Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
                              shell=True, executable='/bin/bash',
                              cwd='attenuation',
                              stdout=f,
@@ -171,39 +174,56 @@ def mu(material='H2C'):
     plt.show()
 
 def spectrum(E0,Mat_Z,Mat_X):
-    xrs=xg.calculate_spectrum(E0,12,3,100,epsrel=0.5,monitor=None,z=74)
+    xrs=sp.Spek(kvp=E0,th=12,dk=0.5,physics="casim",mu_data_source="pene",mas=1.0)
+    #xrs=xg.calculate_spectrum(E0,12,3,100,epsrel=0.5,monitor=None,z=74)
     #Inherent filtration: 1.2mm Al + 100cm Air
-    mu_Al=xg.get_mu(13)
-    mu_Cu=xg.get_mu(29)
-    mu_Pb=xg.get_mu(82)
-    xrs.attenuate(0.12,mu_Al)
-    xrs.attenuate(100,xg.get_mu("air"))
-    fluence_to_dose=xg.get_fluence_to_dose()
-    xrs.set_norm(value=1.0,weight=fluence_to_dose)
+    xrs.filter('Al',1.2).filter('Air',1000)
+    #mu_Al=xg.get_mu(13)
+    #mu_Cu=xg.get_mu(29)
+    #mu_Pb=xg.get_mu(82)
+    #xrs.attenuate(0.12,mu_Al)
+    #xrs.attenuate(100,xg.get_mu("air"))
+
+    #fluence_to_dose=xg.get_fluence_to_dose()
+    #xrs.set_norm(value=1.0,weight=fluence_to_dose)
     #Attenuation
-    if Mat_Z>0: #Atomic number
-        dMat = xrl.ElementDensity(Mat_Z)
-        fMat = xrl.AtomicNumberToSymbol(Mat_Z)
-        xrs.attenuate(0.1*Mat_X,xg.get_mu(Mat_Z))
-    else: #-1 == 'Water'
-        mH2O = 2. * xrl.AtomicWeight(1) + xrl.AtomicWeight(8)
-        wH = 0.1 * Mat_X * 2. * xrl.AtomicWeight(1) / (xrl.ElementDensity(1) * mH2O)
-        wO = 0.1 * Mat_X * xrl.AtomicWeight(8) / (xrl.ElementDensity(8) * mH2O)
-        xrs.attenuate(wH,xg.get_mu(1))
-        xrs.attenuate(wO,xg.get_mu(8))
+    #if Mat_Z>0: #Atomic number
+    #    dMat = xrl.ElementDensity(Mat_Z)
+    #    fMat = xrl.AtomicNumberToSymbol(Mat_Z)
+    #    xrs.attenuate(0.1*Mat_X,xg.get_mu(Mat_Z))
+    #else: #-1 == 'Water, Liquid'    
+    #    mH2O = 2. * xrl.AtomicWeight(1) + xrl.AtomicWeight(8)
+    #    wH = 0.1 * Mat_X * 2. * xrl.AtomicWeight(1) / (xrl.ElementDensity(1) * mH2O)
+    #    wO = 0.1 * Mat_X * xrl.AtomicWeight(8) / (xrl.ElementDensity(8) * mH2O)
+    #    xrs.attenuate(wH,xg.get_mu(1))
+    #    xrs.attenuate(wO,xg.get_mu(8))
+    xrs.filter(Mat_Z,Mat_X)
+
     #Get the figures
-    Nr_Photons = "%.3g" % (xrs.get_norm())
-    Average_Energy = "%.1f keV" % (xrs.get_norm(lambda x:x)/xrs.get_norm())
-    Dose = "%.2g mGy" % (xrs.get_norm(fluence_to_dose))
-    HVL_Al=xrs.hvl(0.5,fluence_to_dose,mu_Al)
-    HVL_Cu=xrs.hvl(0.5,fluence_to_dose,mu_Cu)
-    HVL_Pb=xrs.hvl(0.5,fluence_to_dose,mu_Pb)
-    HVL_text = "%.3f mm (Al) ou %.3f mm (Cu) ou %.3f mm (Pb)" % (10*HVL_Al,10*HVL_Cu,10*HVL_Pb)
-    a = [["Dose à 1m", Dose],["Nombre total de photons", Nr_Photons],
-         ["Énergie moyenne des photons",Average_Energy],
-         ["Couche de Demi-Atténuation", HVL_text]]
-    print(to_text(a))
-    (x2,y2) = xrs.get_points()
+    Nr_Photons = "%.4g photons" % (np.sum(xrs.get_spk()))
+    Average_Energy = "%.2f keV" % (xrs.get_emean())
+    Dose = "%.3g mGy (air kerma)" % (xrs.get_kerma())
+    HVL_Al_text = "%.3f mm%s" % (xrs.get_hvl1(matl=Mat_Z),Mat_Z)
+    print(f"Dose = {Dose} per [mA·s] @ 1m")
+    print(f"Fluence = {Nr_Photons} per [cm²·mA·s] @ 1m")
+    print(f"Average energy = {Average_Energy}")
+    print(f"Half-value Layer (for dose) = {HVL_Al_text}")
+    #Nr_Photons = "%.3g" % (xrs.get_norm())
+    #Average_Energy = "%.1f keV" % (xrs.get_norm(lambda x:x)/xrs.get_norm())
+    #Dose = "%.2g mGy" % (xrs.get_norm(fluence_to_dose))
+    #HVL_Al=xrs.hvl(0.5,fluence_to_dose,mu_Al)
+    #HVL_Cu=xrs.hvl(0.5,fluence_to_dose,mu_Cu)
+    #HVL_Pb=xrs.hvl(0.5,fluence_to_dose,mu_Pb)
+    #HVL_text = "%.3f mm (Al) ou %.3f mm (Cu) ou %.3f mm (Pb)" % (10*HVL_Al,10*HVL_Cu,10*HVL_Pb)
+    #a = [["Dose à 1m", Dose],["Nombre total de photons", Nr_Photons],
+    #     ["Énergie moyenne des photons",Average_Energy],
+    #     ["Couche de Demi-Atténuation", HVL_text]]
+    #print(to_text(a))
+    #print(a)
+    
+    #(x2,y2) = xrs.get_points()
+    (x2,y2) = xrs.get_spectrum()
+
     plt.close(2)
     plt.figure(num=2,dpi=150,clear=True)
     mpl.rcParams.update({'font.size': 6})
@@ -239,7 +259,8 @@ def simulator_scatter(N0=100, position=39, sdd=1000):
         macro='mac/main_novisu.mac'
     # Small simulation, we can run two Monte Carlo simulations with Gate to have some feedback
     with open("Gate.log", "w") as f:
-      subprocess.run(f'source ../.profile && Gate {"--qt" if N0<=100 else ""} -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
+      #subprocess.run(f'source ../.profile && Gate {"--qt" if N0<=100 else ""} -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
+      subprocess.run(f'Gate {"--qt" if N0<=100 else ""} -a [N0,{N0}][PLACEMENT,{position}][SDD,{sdd}] {macro}',
                      shell=True, executable='/bin/bash',
                      cwd='diffuse',
                      stdout=f,

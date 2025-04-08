@@ -49,8 +49,8 @@ def DisplayPhSp(material1,material2,cwd):
     mpl.rcParams.update({'font.size': 6})
     axs1 = plt.subplot(211)
     axs2 = plt.subplot(212)
-    x1 = data1[:,2] * 1e3
-    x2 = data2[:,2] * 1e3
+    x1 = data1[:, read_keys1.index('Ekine')] * 1e3
+    x2 = data2[:, read_keys1.index('Ekine')] * 1e3
     axs1.hist(x1, range=(0,x1.max()),bins=100,
                   histtype='stepfilled',
                   alpha=0.5)

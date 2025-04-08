@@ -203,7 +203,7 @@ def spectrum(E0,Mat_Z,Mat_X):
     Nr_Photons = "%.4g photons" % (np.sum(xrs.get_spk()))
     Average_Energy = "%.2f keV" % (xrs.get_emean())
     Dose = "%.3g mGy (air kerma)" % (xrs.get_kerma())
-    HVL_Al_text = "%.3f mm%s" % (xrs.get_hvl1(matl=Mat_Z),Mat_Z)
+    HVL_Al_text = "%.3f mm(%s)" % (xrs.get_hvl1(matl=Mat_Z),Mat_Z)
     print(f"Dose = {Dose} per [mA·s] @ 1m")
     print(f"Fluence = {Nr_Photons} per [cm²·mA·s] @ 1m")
     print(f"Average energy = {Average_Energy}")

@@ -30,7 +30,7 @@
 /gate/DetectorPlane/geometry/setXLength      397.312 mm
 /gate/DetectorPlane/geometry/setYLength      297.984 mm
 /gate/DetectorPlane/geometry/setZLength      1 nm
-/control/add PLACEMENT_DETECTOR {PLACEMENT} 0.501
+/control/add PLACEMENT_DETECTOR {PLACEMENT} 1.001
 /gate/DetectorPlane/placement/setTranslation 0 0 {PLACEMENT_DETECTOR} cm
 /gate/DetectorPlane/setMaterial              Vacuum
 /gate/DetectorPlane/vis/setVisible           1

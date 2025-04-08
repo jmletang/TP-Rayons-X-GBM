@@ -19,7 +19,7 @@
 
 #Phase space actor
 /gate/actor/addActor PhaseSpaceActor         MyActor
-/gate/actor/MyActor/save                     phsp{MATERIAL}.root
+/gate/actor/MyActor/save                     output/phsp{MATERIAL}.root
 /gate/actor/MyActor/attachTo                 Slab
 /gate/actor/MyActor/enableEkine              true
 /gate/actor/MyActor/enableXPosition          false

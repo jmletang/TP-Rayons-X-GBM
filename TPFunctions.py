@@ -38,17 +38,19 @@ import logging
 
 def DisplayPhSp(material1,material2,cwd):
     logger = logging.getLogger(__name__)
-    phsp_filename1 = f'{cwd}/phsp' + material1 + ".root"
-    phsp_filename2 = f'{cwd}/phsp' + material2 + ".root"
+ 
+    phsp_filename1 = f"{cwd}/phsp{material1}.root"
+    phsp_filename2 = f"{cwd}/phsp{material2}.root"
     data1, read_keys1, m1 = phsp.load(phsp_filename1)
     data2, read_keys2, m2 = phsp.load(phsp_filename2)
+
     plt.close(1)
     fig = plt.figure(num=1,dpi=150,clear=True)
     mpl.rcParams.update({'font.size': 6})
     axs1 = plt.subplot(211)
     axs2 = plt.subplot(212)
-    x1 = data1[:, 1] * 1e3
-    x2 = data2[:, 1] * 1e3
+    x1 = data1[:,2] * 1e3
+    x2 = data2[:,2] * 1e3
     axs1.hist(x1, range=(0,x1.max()),bins=100,
                   histtype='stepfilled',
                   alpha=0.5)
@@ -88,11 +90,12 @@ def GetDensity(material):
 
 def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, material2="Pb", thickness2=0.1):
     nmat=2
+    N0limit = 100000
     if energy2==-1:
         energy2 = energy1
-    for i in range(2*nmat):
-        if os.path.exists(f"attenuation/g4_0{i}.wrl"):
-            os.remove(f"attenuation/g4_0{i}.wrl")
+    #for i in range(2*nmat):
+    #    if os.path.exists(f"attenuation/g4_0{i}.wrl"):
+    #        os.remove(f"attenuation/g4_0{i}.wrl")
     Ndt=np.zeros((nmat))
     for i,energy,material,thickness in zip(range(nmat),[energy1,energy2],[material1,material2],[thickness1,thickness2]):
         if N0<=100:
@@ -107,14 +110,14 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
                              universal_newlines=True,
                              bufsize=0)
             Ndt[i]=np.loadtxt('attenuation/output/fluence.txt')
-        elif N0<=10000:
+        elif N0<=N0limit:
             # Large simulation, we can run two Monte Carlo simulations with disabled visu with Gate to have some feedback
             with open("Gate.log", "w") as f:
               #rm phsp 
               #subprocess.run(f'source ../.profile && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
-              subprocess.run(f'Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
+              subprocess.run(f'cd attenuation && Gate -a [ENERGY,{energy}][THICKNESS,{thickness}][N0,{N0}][MATERIAL,{material}] mac/main_novisu.mac',
                              shell=True, executable='/bin/bash',
-                             cwd='attenuation',
+                             #cwd='attenuation',
                              stdout=f,
                              stderr=f,
                              universal_newlines=True,
@@ -124,10 +127,10 @@ def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, 
             density = GetDensity(material)
             Ndt[i] = np.random.poisson(N0*np.exp(-thickness*density*xrl.CS_Total_CP(material, energy)))            
         print(f'{int(Ndt[i])} photons ont traversé la plaque de {thickness} cm de {material} sur {N0} envoyés')
-    if N0>100 and N0<=10000:
-        DisplayPhSp(material1,material2,'attenuation')
-    elif N0>10000:
-        print('La visualisation est désactivée au delà de 10000 photons émis.')
+    if N0>100 and N0<=N0limit:
+        DisplayPhSp(material1,material2,'attenuation/output')
+    elif N0>N0limit:
+        print(f'La visualisation est désactivée au delà de {N0limit} photons émis.')
 
 def mu(material='H2C'):
     energy_range = np.arange(5.,800., 0.1, dtype=np.double)

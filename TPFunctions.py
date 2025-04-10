@@ -90,7 +90,7 @@ def GetDensity(material):
 
 def simulator(N0=100, energy1=100, energy2=100, material1="H2C", thickness1=39, material2="Pb", thickness2=0.1):
     nmat=2
-    N0limit = 100000
+    N0limit = 10000
     if energy2==-1:
         energy2 = energy1
     #for i in range(2*nmat):
